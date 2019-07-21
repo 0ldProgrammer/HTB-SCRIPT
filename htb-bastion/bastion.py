@@ -1,7 +1,7 @@
 #coding:utf-8
-# @Author: Seyptoo
+# @Author: 0xEX75
 # @Date:   01/05/19
-# @Last Modified by: Seyptoo
+# @Last Modified by: 0xEX75
 
 import os as m_remote_command
 import sys
