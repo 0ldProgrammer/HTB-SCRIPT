@@ -40,7 +40,7 @@ class dns_requests(threading.Thread):
 		# Additional information on the execution of the code.
 	
 		InvokesSearchs = InvokeRequests.find_all('pre')[0]
-		InvokesSearchs = "".join(InvokesSearchs).split()[::-1]	
+		InvokesSearchs = "".join(InvokesSearchs).split()
 
 		RegexValueReqs = InvokesSearchs.index('/InvokeRequests')
 		CountInvokeReq = len(InvokesSearchs)
@@ -49,7 +49,7 @@ class dns_requests(threading.Thread):
 		# and their type of variable, and then execute the commands below
 		
 		if isinstance(RegexValueReqs, int) and isinstance(CountInvokeReq, int):
-			del InvokesSearchs[RegexValueReqs:CountInvokeReq]
+			del InvokesSearchs[0:RegexValueReqs + 1]
 			print " ".join(InvokesSearchs)
 
 	def __str__(self):
