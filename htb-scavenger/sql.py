@@ -104,7 +104,7 @@ class TM(Cmd):
 			self.dbs = self.dbs.split()[::-1][0]
 
 			if(not self.dbs == "object"):
-				print(self.dbs)
+				print("Dump :", self.dbs)
 
 if __name__ == "__main__":
 	TM().cmdloop()
