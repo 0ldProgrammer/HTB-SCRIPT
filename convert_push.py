@@ -39,11 +39,9 @@ class push_command(object):
 
         for loop_command_argument in self.wrapper_argument_output:
             '''
-
+                In this loop it allows you to put the
+                slashes in the right place in the argument in loop_command_argument.
             '''
-            if(len(loop_command_argument) == 3):
-                loop_command_argument = self.wrapper_argument_output[self.index_list_argument[0]].split("/")
-                loop_command_argument = "//".join(loop_command_argument)
 
             elif(len(loop_command_argument) == 2):
                 loop_command_argument = self.wrapper_argument_output[self.index_list_argument[0]].split("/")
@@ -65,5 +63,5 @@ class push_command(object):
             print("push 0x%s ; %s" %(loop_command_lists_finaly, loop_command_list_finaly))
 
 if __name__ == "__main__":
-    q = push_command()g
+    q = push_command()
     q.__convert_testing__()
