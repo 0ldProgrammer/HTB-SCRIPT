@@ -43,6 +43,10 @@ class push_command(object):
                 slashes in the right place in the argument in loop_command_argument.
             '''
 
+            if(len(loop_command_argument) == 3):
+                loop_command_argument = self.wrapper_argument_output[self.index_list_argument[0]].split("/")
+                loop_command_argument = "//".join(loop_command_argument)
+
             elif(len(loop_command_argument) == 2):
                 loop_command_argument = self.wrapper_argument_output[self.index_list_argument[0]].split("/")
                 loop_command_argument = "///".join(loop_command_argument)
