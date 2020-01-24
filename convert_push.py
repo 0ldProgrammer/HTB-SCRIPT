@@ -65,5 +65,5 @@ class push_command(object):
             print("push 0x%s ; %s" %(loop_command_lists_finaly, loop_command_list_finaly))
 
 if __name__ == "__main__":
-    q = push_command()
+    q = push_command()g
     q.__convert_testing__()
