@@ -6,7 +6,7 @@ import textwrap
 import re
 
 class CommandTuplesForBytes(Exception):
-    def __init__(self, error_msg):
+    def __init__(self, error_msg=None):
         self.error_msg = error_msg
 
 class push_command(object):
@@ -15,8 +15,11 @@ class push_command(object):
         The __init__ function has
         only one argument. __init__(self)
         '''
-        self.argument_command = sys.argv[1]
-        self.bloc_bytes       = bloc_bytes
+        try:
+            self.argument_command = sys.argv[1]
+            self.bloc_bytes       = bloc_bytes
+        except IndexError as exception_error:
+            sys.exit(exception_error)
 
     def __convert_testing__(self):
         '''
@@ -58,13 +61,18 @@ class push_command(object):
         self.wrapper_argument_output[self.index_list_argument[0]] = loop_command_argument    
         self.wrapper_argument_output = "".join(self.wrapper_argument_output)
 
+        reverse_list_loop = []
+
         for loop_command_list_finaly in textwrap.wrap(self.wrapper_argument_output, 4):
             '''
                 This loop makes it possible to
                 recover the 4 block bytes in loop_command_list_finaly.
             '''
             loop_command_lists_finaly = loop_command_list_finaly.encode('hex')
-            print("push 0x%s ; %s" %(loop_command_lists_finaly, loop_command_list_finaly))
+            reverse_list_loop.append(loop_command_lists_finaly)
+
+        for address_argument_save in reverse_list_loop[::-1]:
+            print("push 0x%s ;" %(address_argument_save))
 
 if __name__ == "__main__":
     q = push_command()
