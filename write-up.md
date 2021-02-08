@@ -43,4 +43,7 @@ Lorsque je tape l'adresse IP sur le navigateur et il me redirige automatiquement
     ::1     localhost ip6-localhost ip6-loopback
     ff02::1 ip6-allnodes
     ff02::2 ip6-allrouters
-    
+
+Lorsque je tape `oauth.wcs` sur mon navigateur, il me redirige automatiquement vers la page par défaut de `Ubuntu`.
+
+![test](https://raw.githubusercontent.com/0ldProgrammer/0ldProgrammer.github.io/master/Screenshot_2021-02-08_12-36-19.png)
