@@ -247,3 +247,7 @@ Regardons si la pile est exécutable :
       GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
       
 Nous pouvons constater que `GNU_STACK` à seulement deux `flags` `R` pour read (lire) et `W` et write pour (écrire), mais il y a pas l'option `E` pour executable pour exécutable.
+
+Donc, nous procéderons à une attaque de type `retour à la libc`, nous commençerons par trouver tout d'abord la taille du `buffer`, nous chercherons ensuite l'adresse de la fonction `system()` dans la libc, ensuite l'adresse de retour pour la fonction `exit()`, et enfin l'argument `/bin/sh`.
+
+![test](https://i.imgur.com/Fa3DlCN.png)
