@@ -30,7 +30,7 @@ Commençons par faire un scan de port :
     
 Il s'avère que le port `22` et `80` est ouvert, donc nous pouvons supposer que le serveur tourne sur `Ubuntu 18.04` en regardant le release des versions.
 
-- HTTP
+# HTTP
 
 Lorsque je tape l'adresse IP sur le navigateur et il me redirige automatiquement vers le `VHOST => oauth.wcs`, donc je vais mettre ça dans mon fichier `/etc/hosts`.
 
