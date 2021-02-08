@@ -82,3 +82,29 @@ D'après les scans, l'outil à trouvé le VHOST `dev`, donc je vais en profiter 
     
 # dev.oauth.wcs
 
+Une autre page assez intéréssante, j'ai essayé de mettre un code `OTP` mais sans succès, j'ai même esssayé de brute-force de 0 à 1000000, cela n'a pas abouti.
+
+![test](https://raw.githubusercontent.com/0ldProgrammer/0ldProgrammer.github.io/master/Screenshot_2021-02-08_12-45-07.png)
+
+Cherchons des dossiers et ou des fichiers avec `gobuster`.
+
+    root@wildcodeschool# gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://dev.oauth.wcs/
+    ===============================================================
+    Gobuster v3.0.1
+    by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)
+    ===============================================================
+    [+] Url:            http://dev.oauth.wcs/
+    [+] Threads:        10
+    [+] Wordlist:       /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+    [+] Status codes:   200,204,301,302,307,401,403
+    [+] User Agent:     gobuster/3.0.1
+    [+] Timeout:        10s
+    ===============================================================
+    2021/02/08 12:47:21 Starting gobuster
+    ===============================================================
+    /includes (Status: 301)
+
+Il y a un dossier `/includes` assez intéréssant, lorsque je rentre dedans il y a trois dossiers (css, js, php). Lorsque je rentre dans le dossier `php`, il y a un fichier `access.php.bak` qui pouvait être télécharger par n'importe qui, donc je vais le télécharger et le mettre dans ma machine physique.
+
+![test](https://raw.githubusercontent.com/0ldProgrammer/HTB-SCRIPT/master/Screenshot_2021-02-08_12-50-02.png)
+
