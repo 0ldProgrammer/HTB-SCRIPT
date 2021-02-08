@@ -160,5 +160,7 @@ Lorsque nous regardons la documentation de `PHPGangsta`, nous pouvons créer rec
 ?>
 ```
 
+(Un petit point important, l'heure du serveur est décalé de 1 heure, donc si l'heure de votre machine n'est pas adaptée avec lui de la machine cible, le code ne fonctionnera essayer de adapté l'heure)
+
 Et lorsque nous exécutons le code `PHP`, il m'affiche un code que je mettrai dans la platforme et lorsque nous rentrons le code il nous redirige vers une platforme Python.
 
