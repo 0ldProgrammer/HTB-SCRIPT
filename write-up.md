@@ -108,3 +108,35 @@ Il y a un dossier `/includes` assez intéréssant, lorsque je rentre dedans il y
 
 ![test](https://raw.githubusercontent.com/0ldProgrammer/HTB-SCRIPT/master/Screenshot_2021-02-08_12-50-02.png)
 
+    root@wildcodeschool# wget http://dev.oauth.wcs/includes/php/access.php.bak
+    --2021-02-08 12:51:32--  http://dev.oauth.wcs/includes/php/access.php.bak
+    Resolving dev.oauth.wcs (dev.oauth.wcs)... 172.30.20.253
+    Connecting to dev.oauth.wcs (dev.oauth.wcs)|172.30.20.253|:80... connected.
+    HTTP request sent, awaiting response... 200 OK
+    Length: 320 [application/x-trash]
+    Saving to: ‘access.php.bak’
+
+    access.php.bak                         100%[============================================================================>]     320  --.-KB/s    in 0s      
+
+    2021-02-08 12:51:32 (25.1 MB/s) - ‘access.php.bak’ saved [320/320]
+    
+Affichons le fichier pour essayer de comprendre le code :
+
+```php
+<?php
+        require_once 'GoogleAuthenticator.php';
+        $ga = new PHPGangsta_GoogleAuthenticator();
+        $secret = "P4UJGRUHNI6KNI3O";
+
+        if ($_POST['action'] == 'check_code') {
+                $code = $_POST['code'];
+                $result = $ga->verifyCode($secret, $code, 1);
+
+                if ($result) {
+                        include('coder.php');
+                } else {
+                        echo "wrong";
+                }
+        }
+?>
+```
