@@ -147,3 +147,5 @@ Les points les plus intéréssants dans le code PHP :
 - `$secret = "P4UJGRUHNI6KNI3O";` est un mot de passe pour la génération d'un code `OTP`, cela nous sera très utile de créer notre propre code et l'envoyer au serveur.
 - `$result = $ga->verifyCode($secret, $code, 1);` l'application teste si le code est correcte, si le code est correcte, il redirige vers `coder.php` sinon il affiche une erreur (wrong).
 
+Lorsque nous regardons la documentation de `PHPGangsta`, nous pouvons créer recevoir notre propre code `OTP` à l'aide de la fonction 
+
