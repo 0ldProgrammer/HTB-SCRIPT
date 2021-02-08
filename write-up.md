@@ -47,3 +47,9 @@ Lorsque je tape l'adresse IP sur le navigateur et il me redirige automatiquement
 Lorsque je tape `oauth.wcs` sur mon navigateur, il me redirige automatiquement vers la page par défaut de `Ubuntu`.
 
 ![test](https://raw.githubusercontent.com/0ldProgrammer/0ldProgrammer.github.io/master/Screenshot_2021-02-08_12-36-19.png)
+
+J'ai effectué plusieurs recherches vis à vis des dossiers ou des fichiers, mais `gobuster` n'a strictement rien trouvé. Je vais chercher des `VHOSTS` avec l'outil `wfuzz` et de voir si nous pouvons accéder différement à la machine.
+
+(VHOST est simplement un système qui permet d'avoir plusieurs site sur une même adresse IP)
+
+
