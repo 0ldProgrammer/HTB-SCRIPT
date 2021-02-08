@@ -229,15 +229,21 @@ Si je vais essayer de déborder la mémoire en mettant une valeur importante dan
     Your name : AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     Segmentation fault
     
-Il me renvoie bien une Segmentation fault, nous pouvons exploiter cette faille pour pop un shell dans le système, avant de passer à l'exploitation, voyons si l'ASLR est activé et les aspects sécurités du programme si par exemple la pile est exécutable.
+Il me renvoie bien une Segmentation fault, nous pouvons exploiter cette faille pour pop un shell dans le système, avant de passer à l'exploitation, voyons si l'`ASLR` est activé et les aspects sécurités du programme si par exemple la pile est exécutable.
 
     www-data@checkpoint04:/$ cat /proc/sys/kernel/randomize_va_space 
     1
 
 Nous pouvons voir que par défaut dans le système la valeur est égal à 1, ce qui veut dire que le système randomisera les adresses mémoires à chaque exécution du programme ce qui nous compliquera la tâche de l'exploitation.
 
-Nous pouvons également voir que la version du programme est un programme en 32-bit donc les adresses seront plus faciles à cracker.
+Nous pouvons également voir que la version du programme est un programme en `32-bit` donc les adresses seront plus faciles à cracker.
 
     www-data@checkpoint04:/$ file /usr/bin/ovrflw 
     /usr/bin/ovrflw: setuid ELF 32-bit LSB shared object, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=4fb690fc7b9847b11c5eca9764a919972cc7d8c9, not stripped
     
+Regardons si la pile est exécutable :
+
+    www-data@checkpoint04:/$ readelf -l /usr/bin/ovrflw|grep GNU_STACK
+      GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
+      
+Nous pouvons constater que `GNU_STACK` à seulement deux `flags` `R` pour read (lire) et `W` et write pour (écrire), mais il y a pas l'option `E` pour executable pour exécutable.
