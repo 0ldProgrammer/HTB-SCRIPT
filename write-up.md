@@ -52,4 +52,33 @@ J'ai effectué plusieurs recherches vis à vis des dossiers ou des fichiers, mai
 
 (VHOST est simplement un système qui permet d'avoir plusieurs site sur une même adresse IP)
 
+     root@wildcodeschool# wfuzz -w /usr/share/dnsrecon/subdomains-top1mil-5000.txt -u http://172.30.20.253/ -H "Host: FUZZ.oauth.wcs" --hl 376
+     /usr/lib/python3/dist-packages/wfuzz/__init__.py:34: UserWarning:Pycurl is not compiled against Openssl. Wfuzz might not work correctly when fuzzing SSL sites. Check Wfuzz's documentation for more information.
+    ********************************************************
+    * Wfuzz 3.1.0 - The Web Fuzzer                         *
+    ********************************************************
+
+    Target: http://172.30.20.253/
+    Total requests: 5000
+
+    =====================================================================
+    ID           Response   Lines    Word       Chars       Payload                                                                                    
+    =====================================================================
+
+    000000019:   200        32 L     78 W       1161 Ch     "dev"
+    
+D'après les scans, l'outil à trouvé le VHOST `dev`, donc je vais en profiter pour mettre ça dans mon fichier `/etc/hosts`.
+
+    root@wildcodeshool: cat /etc/hosts
+    127.0.0.1       localhost
+    127.0.1.1       oldprogrammer
+
+    172.30.20.253   oauth.wcs dev.oauth.wcs
+
+    # The following lines are desirable for IPv6 capable hosts
+    ::1     localhost ip6-localhost ip6-loopback
+    ff02::1 ip6-allnodes
+    ff02::2 ip6-allrouters
+    
+# dev.oauth.wcs
 
