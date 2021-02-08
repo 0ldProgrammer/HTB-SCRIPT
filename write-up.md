@@ -164,3 +164,4 @@ Lorsque nous regardons la documentation de `PHPGangsta`, nous pouvons créer rec
 
 Et lorsque nous exécutons le code `PHP`, il m'affiche un code que je mettrai dans la platforme et lorsque nous rentrons le code il nous redirige vers une platforme Python.
 
+![test](https://raw.githubusercontent.com/0ldProgrammer/pic/main/Screenshot_2021-02-08_12-07-15.png)
